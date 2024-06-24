@@ -1,5 +1,4 @@
 import { memo, useState, type ChangeEvent, type FormEvent } from "react";
-import { z as zod } from "zod";
 import axios from "axios";
 
 import {
@@ -17,15 +16,9 @@ import {
   useToast,
 } from "@chakra-ui/react";
 
+import { customerSchema, type Customer } from "../types/customer";
 import { Eye } from "../components/icons/Eye";
 import { EyeSlash } from "../components/icons/EyeSlash";
-
-interface Customer {
-  fullName: string;
-  email: string;
-  phoneNumber: string;
-  password: string;
-}
 
 export const RegistrationForm = memo(function RegistrationForm() {
   const toast = useToast();
@@ -34,17 +27,17 @@ export const RegistrationForm = memo(function RegistrationForm() {
   const [passwordVisible, setPasswordVisible] = useState(false);
 
   const [customer, setCustomer] = useState<Customer>({
-    fullName: "asdasdsa",
-    email: "dancok@gmail.com",
-    phoneNumber: "0857481966",
-    password: "Dancok_030603",
+    fullName: "",
+    email: "",
+    phoneNumber: "",
+    password: "",
   });
 
   function handleFormOnSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const isEmailValid = validateEmail(customer.email);
-    if (isEmailValid === false) {
+    const result = customerSchema.safeParse(customer);
+    if (result.success === false) {
       setInvalidEmail(true);
       return;
     }
@@ -186,12 +179,6 @@ export const RegistrationForm = memo(function RegistrationForm() {
     </Stack>
   );
 });
-
-function validateEmail(email: string): boolean {
-  const emailSchema = zod.string().email();
-  const result = emailSchema.safeParse(email);
-  return result.success;
-}
 
 interface RegistrationStatus {
   status: "success" | "failed";
