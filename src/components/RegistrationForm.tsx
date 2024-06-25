@@ -19,6 +19,7 @@ import {
 import { customerSchema, type Customer } from "../types/customer";
 import { Eye } from "../components/icons/Eye";
 import { EyeSlash } from "../components/icons/EyeSlash";
+import type { SentinelError } from "../types/sentinelError";
 
 export const RegistrationForm = memo(function RegistrationForm() {
   const toast = useToast();
@@ -123,10 +124,10 @@ export const RegistrationForm = memo(function RegistrationForm() {
             type="tel"
             name="phoneNumber"
             placeholder="phoneNumber"
-            pattern="^(\+62|0)\d{8,13}$"
+            pattern="^0\d{8,13}$"
           />
           <FormHelperText>
-            E.g., +6281234567890 or 081234567890, both are valid phone numbers.
+            E.g., 081234567890 is a valid phone number.
           </FormHelperText>
         </FormControl>
 
@@ -201,18 +202,39 @@ function registerNewCustomer(customer: Customer): Promise<RegistrationStatus> {
             status: "success",
             message: "We have created your account.",
           });
-        } else {
-          resolve({
-            status: "failed",
-            message: "Please check the data you entered again.",
-          });
+          return;
+        }
+
+        const sentinelError: SentinelError = res.data.error.sentinel;
+        switch (sentinelError) {
+          case "RegisteredEmail": {
+            resolve({
+              status: "failed",
+              message: "Email is already registered.",
+            });
+            break;
+          }
+
+          case "RegisteredPhoneNumber": {
+            resolve({
+              status: "failed",
+              message: "Phone number is already registered.",
+            });
+            break;
+          }
+
+          default: {
+            resolve({
+              status: "failed",
+              message: "Please check the data you entered again.",
+            });
+            break;
+          }
         }
       })
       .catch((error) => {
         if (error.response) {
           // Retry the request properly when the request is 500, indicating server error
-          console.error(error.response);
-
           resolve({
             status: "failed",
             message: "Something is wrong. Please try again.",
@@ -222,9 +244,6 @@ function registerNewCustomer(customer: Customer): Promise<RegistrationStatus> {
             status: "failed",
             message: "We couldn't process your request due to a timeout.",
           });
-
-          // Log the error properly when the request is timeout
-          console.error(error.request);
         } else {
           // Log the error properly
           console.error("Error", error.message);

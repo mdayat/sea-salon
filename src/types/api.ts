@@ -1,3 +1,5 @@
+import type { SentinelError } from "./sentinelError";
+
 interface SuccessResponse<T> {
   status: "success";
   data: T | null;
@@ -6,7 +8,8 @@ interface SuccessResponse<T> {
 interface FailedResponse {
   status: "failed";
   error: {
-    statusCode: number;
+    code: number;
+    sentinel: SentinelError;
     message: string;
   };
 }

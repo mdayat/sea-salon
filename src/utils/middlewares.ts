@@ -9,11 +9,15 @@ function handleInvalidMethod(
 ): void {
   const bodyPayload: FailedResponse = {
     status: "failed",
-    error: { statusCode: 405, message: "Invalid HTTP method" },
+    error: {
+      code: 405,
+      sentinel: "InvalidHTTPMethod",
+      message: "Invalid HTTP method",
+    },
   };
 
   res.setHeader("Allow", allowedMethods.join(", "));
-  res.status(bodyPayload.error.statusCode).json(bodyPayload);
+  res.status(bodyPayload.error.code).json(bodyPayload);
 }
 
 export { handleInvalidMethod };
