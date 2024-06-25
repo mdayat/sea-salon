@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { memo, useState, type ChangeEvent, type FormEvent } from "react";
+import { useRouter } from "next/router";
 import axios from "axios";
 
 import {
@@ -21,38 +22,41 @@ import {
 import { customerSchema, type Customer } from "../types/customer";
 import { Eye } from "../components/icons/Eye";
 import { EyeSlash } from "../components/icons/EyeSlash";
-import type { SentinelError } from "../types/sentinelError";
 
-export const RegistrationForm = memo(function RegistrationForm() {
+export const LoginForm = memo(function LoginForm() {
+  const router = useRouter();
   const toast = useToast();
 
   const [loading, setLoading] = useState(false);
   const [isEmailInvalid, setIsEmailInvalid] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-  const [customer, setCustomer] = useState<Customer>({
-    fullName: "",
+  const [customer, setCustomer] = useState<
+    Omit<Customer, "fullName" | "phoneNumber">
+  >({
     email: "",
-    phoneNumber: "",
     password: "",
   });
 
   function handleFormOnSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const result = customerSchema.safeParse(customer);
+    const result = customerSchema
+      .omit({ fullName: true, phoneNumber: true })
+      .safeParse(customer);
+
     if (result.success === false) {
       setIsEmailInvalid(true);
       return;
     }
 
     setLoading(true);
-    registerNewCustomer(customer)
-      .then(({ status, message }) => {
-        if (status !== "success") {
+    login(customer)
+      .then((res) => {
+        if (res.status === "failed") {
           toast({
-            title: "Registration Failed",
-            description: message,
+            title: "Login Failed",
+            description: res.message,
             status: "error",
             duration: null,
             isClosable: true,
@@ -62,16 +66,24 @@ export const RegistrationForm = memo(function RegistrationForm() {
         }
 
         toast({
-          title: "Registration Success",
-          description: message,
+          title: "Login Success",
+          description: res.message,
           status: "success",
           duration: null,
           isClosable: true,
           position: "top-right",
         });
+
+        setTimeout(() => {
+          toast.closeAll();
+          router.push("/dashboard");
+        }, 1500);
       })
       .finally(() => {
         setLoading(false);
+        if (isEmailInvalid) {
+          setIsEmailInvalid(false);
+        }
       });
   }
 
@@ -88,7 +100,7 @@ export const RegistrationForm = memo(function RegistrationForm() {
       className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-full max-w-sm"
     >
       <Heading fontSize="3xl" className="text-center">
-        Be part of our family
+        Log in to your account
       </Heading>
 
       <form
@@ -97,17 +109,6 @@ export const RegistrationForm = memo(function RegistrationForm() {
         autoComplete="off"
         className="flex flex-col gap-y-4"
       >
-        <FormControl isRequired>
-          <FormLabel>Full Name</FormLabel>
-          <Input
-            value={customer.fullName}
-            onChange={handleInputOnChange}
-            type="text"
-            name="fullName"
-            placeholder="fullName"
-          />
-        </FormControl>
-
         <FormControl isInvalid={isEmailInvalid} isRequired>
           <FormLabel>Email</FormLabel>
           <Input
@@ -118,21 +119,6 @@ export const RegistrationForm = memo(function RegistrationForm() {
             placeholder="email"
           />
           <FormErrorMessage>Invalid email</FormErrorMessage>
-        </FormControl>
-
-        <FormControl isRequired>
-          <FormLabel>Phone Number</FormLabel>
-          <Input
-            value={customer.phoneNumber}
-            onChange={handleInputOnChange}
-            type="tel"
-            name="phoneNumber"
-            placeholder="phoneNumber"
-            pattern="^0\d{8,13}$"
-          />
-          <FormHelperText>
-            E.g., 081234567890 is a valid phone number.
-          </FormHelperText>
         </FormControl>
 
         <FormControl isRequired>
@@ -178,31 +164,33 @@ export const RegistrationForm = memo(function RegistrationForm() {
           loadingText="Submitting"
           type="submit"
           colorScheme="purple"
-          className="mt-4"
+          className="mt-2"
         >
           Submit
         </Button>
       </form>
 
       <Text className="text-center">
-        Already have an account?&nbsp;
-        <Button as={Link} colorScheme="purple" variant="link" href="/login">
-          Login
+        Don&apos;t have an account?&nbsp;
+        <Button as={Link} colorScheme="purple" variant="link" href="/register">
+          Create Account
         </Button>
       </Text>
     </Stack>
   );
 });
 
-interface RegistrationStatus {
+interface LoginStatus {
   status: "success" | "failed";
   message: string;
 }
 
-function registerNewCustomer(customer: Customer): Promise<RegistrationStatus> {
-  const promise = new Promise<RegistrationStatus>((resolve) => {
+function login(
+  customer: Omit<Customer, "fullName" | "phoneNumber">
+): Promise<LoginStatus> {
+  const promise = new Promise<LoginStatus>((resolve) => {
     axios
-      .post("/api/register", customer, {
+      .post("/api/login", customer, {
         headers: { "Content-Type": "application/json" },
         timeout: 3000, // ms
         validateStatus: function (status) {
@@ -211,39 +199,18 @@ function registerNewCustomer(customer: Customer): Promise<RegistrationStatus> {
       })
       .then((res) => {
         if (res.status !== 200) {
-          const sentinelError: SentinelError = res.data.error.sentinel;
-          switch (sentinelError) {
-            case "RegisteredEmail": {
-              resolve({
-                status: "failed",
-                message: "Email is already registered.",
-              });
-              break;
-            }
-
-            case "RegisteredPhoneNumber": {
-              resolve({
-                status: "failed",
-                message: "Phone number is already registered.",
-              });
-              break;
-            }
-
-            default: {
-              resolve({
-                status: "failed",
-                message: "Please check the data you entered again.",
-              });
-              break;
-            }
-          }
+          resolve({
+            status: "failed",
+            message: "Your email or password is incorrect.",
+          });
           return;
         }
 
         resolve({
           status: "success",
-          message: "We have created your account.",
+          message: "You will be redirected to dashboard.",
         });
+        localStorage.setItem("accessToken", res.data.data.accessToken);
       })
       .catch((error) => {
         if (error.response) {

@@ -3,12 +3,14 @@ type RegisteredPhoneNumber = "RegisteredPhoneNumber";
 type InvalidJSON = "InvalidJSON";
 type InvalidHTTPMethod = "InvalidHTTPMethod";
 type ServerError = "ServerError";
+type LoginFailed = "LoginFailed";
 
 type SentinelError =
-  | ServerError
+  | RegisteredEmail
+  | RegisteredPhoneNumber
   | InvalidJSON
   | InvalidHTTPMethod
-  | RegisteredEmail
-  | RegisteredPhoneNumber;
+  | ServerError
+  | LoginFailed;
 
 export type { SentinelError };
