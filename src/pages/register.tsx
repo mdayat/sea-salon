@@ -1,6 +1,8 @@
-import { Fragment } from "react";
 import dynamic from "next/dynamic";
+import { Fragment, type ReactElement } from "react";
+
 import { useWindowSize } from "../hooks/useWindowSize";
+import type { NextPageWithLayout } from "./_app";
 
 const Grid = dynamic(() => import("@chakra-ui/react").then(({ Grid }) => Grid));
 const GridItem = dynamic(() =>
@@ -18,7 +20,7 @@ const LoginAndRegistrationLeftPanel = dynamic(() =>
   )
 );
 
-export default function Register() {
+const Register: NextPageWithLayout = () => {
   const { width } = useWindowSize();
 
   if (width === 0) {
@@ -44,4 +46,10 @@ export default function Register() {
       </GridItem>
     </Grid>
   );
-}
+};
+
+Register.getLayout = function getLayout(page: ReactElement) {
+  return <main className="font-poppins">{page}</main>;
+};
+
+export default Register;

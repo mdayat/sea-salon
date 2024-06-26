@@ -18,10 +18,9 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
 import { customerSchema, type Customer } from "../types/customer";
-import { Eye } from "../components/icons/Eye";
-import { EyeSlash } from "../components/icons/EyeSlash";
 
 export const LoginForm = memo(function LoginForm() {
   const router = useRouter();
@@ -136,13 +135,7 @@ export const LoginForm = memo(function LoginForm() {
 
             <InputRightElement width="4.5rem">
               <IconButton
-                icon={
-                  isPasswordVisible ? (
-                    <Eye className="fill-zinc-50 w-4 h-4" />
-                  ) : (
-                    <EyeSlash className="fill-zinc-50 w-4 h-4" />
-                  )
-                }
+                icon={isPasswordVisible ? <ViewIcon /> : <ViewOffIcon />}
                 aria-label={
                   isPasswordVisible ? "Show password" : "Hide password"
                 }

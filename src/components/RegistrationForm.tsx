@@ -17,10 +17,9 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
 import { customerSchema, type Customer } from "../types/customer";
-import { Eye } from "../components/icons/Eye";
-import { EyeSlash } from "../components/icons/EyeSlash";
 import type { SentinelError } from "../types/sentinelError";
 
 export const RegistrationForm = memo(function RegistrationForm() {
@@ -150,13 +149,7 @@ export const RegistrationForm = memo(function RegistrationForm() {
 
             <InputRightElement width="4.5rem">
               <IconButton
-                icon={
-                  isPasswordVisible ? (
-                    <Eye className="fill-zinc-50 w-4 h-4" />
-                  ) : (
-                    <EyeSlash className="fill-zinc-50 w-4 h-4" />
-                  )
-                }
+                icon={isPasswordVisible ? <ViewIcon /> : <ViewOffIcon />}
                 aria-label={
                   isPasswordVisible ? "Show password" : "Hide password"
                 }
