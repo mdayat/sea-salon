@@ -3,7 +3,8 @@ import dynamic from "next/dynamic";
 import { Fragment, useEffect, useRef } from "react";
 
 import { Button, useColorMode, useDisclosure } from "@chakra-ui/react";
-import { HamburgerIcon } from "@chakra-ui/icons";
+import { MenuIcon } from "./icons/MenuIcon";
+import { CloseIcon } from "./icons/CloseIcon";
 import { useWindowSize } from "../hooks/useWindowSize";
 
 const Drawer = dynamic(() =>
@@ -96,7 +97,11 @@ export function Navbar() {
         ) : (
           <>
             <button ref={btnRef} type="button" onClick={onOpen}>
-              <HamburgerIcon width={6} height={6} />
+              {isOpen ? (
+                <CloseIcon className="fill-gray-50 w-6 h-6" />
+              ) : (
+                <MenuIcon className="fill-gray-50 w-6 h-6" />
+              )}
             </button>
 
             <Drawer

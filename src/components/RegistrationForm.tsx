@@ -17,8 +17,9 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
+import { EyeOpenIcon } from "./icons/EyeOpenIcon";
+import { EyeCloseIcon } from "./icons/EyeCloseIcon";
 import { customerSchema, type Customer } from "../types/customer";
 import type { SentinelError } from "../types/sentinelError";
 
@@ -103,7 +104,7 @@ export const RegistrationForm = memo(function RegistrationForm() {
             onChange={handleInputOnChange}
             type="text"
             name="fullName"
-            placeholder="fullName"
+            placeholder="Enter your name"
           />
         </FormControl>
 
@@ -114,7 +115,7 @@ export const RegistrationForm = memo(function RegistrationForm() {
             onChange={handleInputOnChange}
             type="email"
             name="email"
-            placeholder="email"
+            placeholder="Enter your email"
           />
           <FormErrorMessage>Invalid email</FormErrorMessage>
         </FormControl>
@@ -126,7 +127,7 @@ export const RegistrationForm = memo(function RegistrationForm() {
             onChange={handleInputOnChange}
             type="tel"
             name="phoneNumber"
-            placeholder="phoneNumber"
+            placeholder="Enter your phone number"
             pattern="^0\d{8,13}$"
           />
           <FormHelperText>
@@ -143,13 +144,19 @@ export const RegistrationForm = memo(function RegistrationForm() {
               type={isPasswordVisible ? "text" : "password"}
               minLength={12}
               name="password"
-              placeholder="password"
+              placeholder="Enter your password"
               pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{12,}$"
             />
 
             <InputRightElement width="4.5rem">
               <IconButton
-                icon={isPasswordVisible ? <ViewIcon /> : <ViewOffIcon />}
+                icon={
+                  isPasswordVisible ? (
+                    <EyeOpenIcon className="fill-gray-50 w-4 h-4" />
+                  ) : (
+                    <EyeCloseIcon className="fill-gray-50 w-4 h-4" />
+                  )
+                }
                 aria-label={
                   isPasswordVisible ? "Show password" : "Hide password"
                 }

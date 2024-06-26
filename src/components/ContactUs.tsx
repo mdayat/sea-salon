@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { Box, Button, Heading, SimpleGrid, Text } from "@chakra-ui/react";
 
-import { LocationIcon } from "../components/icons/Location";
-import { PhoneIcon } from "../components/icons/Phone";
-import { EmailIcon } from "../components/icons/Email";
+import { LocationIcon } from "./icons/LocationIcon";
+import { PhoneIcon } from "./icons/PhoneIcon";
+import { EmailIcon } from "./icons/EmailIcon";
 
 export function ContactUs() {
   return (
