@@ -11,6 +11,8 @@ const {
   Avatar,
   Alert,
   Drawer,
+  Card,
+  Divider,
 } = chakraTheme.components;
 
 export const theme = extendBaseTheme({
@@ -29,5 +31,7 @@ export const theme = extendBaseTheme({
     Avatar,
     Alert,
     Drawer,
+    Card,
+    Divider,
   },
 });
