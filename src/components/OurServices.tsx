@@ -14,7 +14,10 @@ import {
 
 export function OurServices() {
   return (
-    <section id="services" className="max-w-screen-xl mx-auto px-8">
+    <section
+      id="services"
+      className="max-w-screen-xl mx-auto mt-2 px-8 pt-14 md:pt-[72px]"
+    >
       <Heading as="h2" size="xl" className="text-center mb-4">
         Our Services
       </Heading>

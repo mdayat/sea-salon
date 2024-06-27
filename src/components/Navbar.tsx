@@ -2,7 +2,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Fragment, useEffect, useRef } from "react";
 
-import { Button, useColorMode, useDisclosure } from "@chakra-ui/react";
+import { Box, Button, useColorMode, useDisclosure } from "@chakra-ui/react";
 import { MenuIcon } from "./icons/MenuIcon";
 import { CloseIcon } from "./icons/CloseIcon";
 import { useWindowSize } from "../hooks/useWindowSize";
@@ -44,7 +44,7 @@ export function Navbar() {
   }
 
   return (
-    <div className="shadow-2xl py-4 px-8">
+    <Box backgroundColor="gray.800" className="sticky top-0 z-20 py-4 px-8">
       <div className="flex justify-between items-center max-w-screen-xl mx-auto">
         <div className="flex justify-between items-center gap-x-12">
           <Button as={Link} variant="link" href="/">
@@ -170,6 +170,6 @@ export function Navbar() {
           </>
         )}
       </div>
-    </div>
+    </Box>
   );
 }
