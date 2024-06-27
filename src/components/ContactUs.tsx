@@ -8,8 +8,8 @@ import { EmailIcon } from "./icons/EmailIcon";
 export function ContactUs() {
   return (
     <div className="mt-2 pt-14 md:pt-[72px]">
-      <Box backgroundColor="gray.900" className="px-8">
-        <section id="contact-us" className="max-w-screen-xl mx-auto py-8">
+      <Box backgroundColor="gray.700" className="px-8">
+        <section id="contact-us" className="max-w-screen-xl mx-auto py-16">
           <Heading as="h2" size="xl" className="text-center mb-4">
             Contact Us
           </Heading>

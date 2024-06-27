@@ -5,6 +5,8 @@ import type { AppProps } from "next/app";
 import type { NextPage } from "next";
 
 import { Navbar } from "../components/Navbar";
+import { Hero } from "../components/Hero";
+import { Footer } from "../components/Footer";
 import { theme } from "../libs/chakraui";
 import "../styles/globals.css";
 
@@ -32,7 +34,9 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       return (
         <>
           <Navbar />
+          <Hero />
           <main className="font-poppins">{page}</main>
+          <Footer />
         </>
       );
     });
