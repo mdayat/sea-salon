@@ -10,12 +10,16 @@ export function ContactUs() {
     <div className="mt-2 pt-14 md:pt-[72px]">
       <Box backgroundColor="gray.700" className="px-8">
         <section id="contact-us" className="max-w-screen-xl mx-auto py-16">
-          <Heading as="h2" size="xl" className="text-center mb-4">
+          <Heading
+            fontSize={{ base: "2xl", sm: "3xl", lg: "4xl" }}
+            as="h2"
+            className="text-center mb-4"
+          >
             Contact Us
           </Heading>
 
           <Text
-            fontSize="xl"
+            fontSize={{ base: "md", sm: "lg", lg: "xl" }}
             className="max-w-screen-md text-center mx-auto mb-12"
           >
             We&apos;re here to help and answer any questions you might have. We
@@ -27,8 +31,12 @@ export function ContactUs() {
             spacing="8"
           >
             <div className="flex flex-col items-center">
-              <LocationIcon className="fill-gray-50 w-12 h-12" />
-              <Heading as="h3" size="md" className="mt-2 mb-4">
+              <LocationIcon className="fill-gray-50 w-10 h-10 md:w-12 md:h-12" />
+              <Heading
+                fontSize={{ base: "xl", sm: "2xl" }}
+                as="h3"
+                className="mt-2 mb-4"
+              >
                 Phone
               </Heading>
 
@@ -38,8 +46,12 @@ export function ContactUs() {
             </div>
 
             <div className="flex flex-col items-center">
-              <PhoneIcon className="fill-gray-50 w-12 h-12" />
-              <Heading as="h3" size="md" className="mt-2 mb-4">
+              <PhoneIcon className="fill-gray-50 w-10 h-10 md:w-12 md:h-12" />
+              <Heading
+                fontSize={{ base: "xl", sm: "2xl" }}
+                as="h3"
+                className="mt-2 mb-4"
+              >
                 Phone
               </Heading>
 
@@ -81,8 +93,12 @@ export function ContactUs() {
             </div>
 
             <div className="flex flex-col items-center">
-              <EmailIcon className="fill-gray-50 w-12 h-12" />
-              <Heading as="h3" size="md" className="mt-2 mb-4">
+              <EmailIcon className="fill-gray-50 w-10 h-10 md:w-12 md:h-12" />
+              <Heading
+                fontSize={{ base: "xl", sm: "2xl" }}
+                as="h3"
+                className="mt-2 mb-4"
+              >
                 Email
               </Heading>
 

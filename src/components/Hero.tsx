@@ -19,7 +19,7 @@ export function Hero() {
 
         <Text
           fontSize={{ base: "md", sm: "lg", lg: "xl" }}
-          className="text-left md:text-center"
+          className="md:text-center"
         >
           Experience unparalleled beauty and elegance with expert stylists.
           Discover the artistry of refined beauty today.

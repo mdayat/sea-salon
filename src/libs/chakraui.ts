@@ -13,6 +13,9 @@ const {
   Drawer,
   Card,
   Divider,
+  Table,
+  Modal,
+  Select,
 } = chakraTheme.components;
 
 export const theme = extendBaseTheme({
@@ -33,5 +36,8 @@ export const theme = extendBaseTheme({
     Drawer,
     Card,
     Divider,
+    Table,
+    Modal,
+    Select,
   },
 });
