@@ -1,13 +1,6 @@
 import Link from "next/link";
-import {
-  memo,
-  useContext,
-  useState,
-  type ChangeEvent,
-  type FormEvent,
-} from "react";
+import { memo, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/router";
-import axios from "axios";
 
 import {
   Button,
@@ -25,15 +18,12 @@ import {
   useToast,
 } from "@chakra-ui/react";
 
-import { UserRoleContext } from "../context/UserRoleProvider";
 import { EyeOpenIcon } from "./icons/EyeOpenIcon";
 import { EyeCloseIcon } from "./icons/EyeCloseIcon";
-import { getCookieValue } from "../utils/cookie";
+import { login } from "../utils/auth";
 import { customerSchema, type Customer } from "../types/customer";
-import type { UserRole } from "../types/user";
 
 export const LoginForm = memo(function LoginForm() {
-  const { updateUserRole } = useContext(UserRoleContext);
   const router = useRouter();
   const toast = useToast();
 
@@ -84,12 +74,9 @@ export const LoginForm = memo(function LoginForm() {
           position: "top-right",
         });
 
-        const userRole = getCookieValue("user_role");
-        updateUserRole(userRole === "" ? null : (userRole as UserRole));
-
         setTimeout(() => {
           toast.closeAll();
-          router.push("/dashboard");
+          router.reload();
         }, 1500);
       })
       .finally(() => {
@@ -191,55 +178,3 @@ export const LoginForm = memo(function LoginForm() {
     </Stack>
   );
 });
-
-interface LoginStatus {
-  status: "success" | "failed";
-  message: string;
-}
-
-function login(
-  customer: Omit<Customer, "fullName" | "phoneNumber">
-): Promise<LoginStatus> {
-  const promise = new Promise<LoginStatus>((resolve) => {
-    axios
-      .post("/api/login", customer, {
-        headers: { "Content-Type": "application/json" },
-        timeout: 3000, // ms
-        validateStatus: function (status) {
-          return status < 500; // Resolve only if the status code is less than 500
-        },
-      })
-      .then((res) => {
-        if (res.status !== 200) {
-          resolve({
-            status: "failed",
-            message: "Your email or password is incorrect.",
-          });
-          return;
-        }
-
-        resolve({
-          status: "success",
-          message: "You will be redirected to dashboard.",
-        });
-      })
-      .catch((error) => {
-        if (error.response) {
-          // Retry the request properly when the request is 500, indicating server error
-          resolve({
-            status: "failed",
-            message: "Something is wrong. Please try again.",
-          });
-        } else if (error.request) {
-          resolve({
-            status: "failed",
-            message: "We couldn't process your request due to a timeout.",
-          });
-        } else {
-          // Log the error properly
-          console.error("Error", error.message);
-        }
-      });
-  });
-  return promise;
-}

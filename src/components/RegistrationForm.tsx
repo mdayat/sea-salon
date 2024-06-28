@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { memo, useState, type ChangeEvent, type FormEvent } from "react";
-import axios from "axios";
 
 import {
   Button,
@@ -18,10 +17,10 @@ import {
   useToast,
 } from "@chakra-ui/react";
 
+import { registerNewCustomer } from "../utils/auth";
 import { EyeOpenIcon } from "./icons/EyeOpenIcon";
 import { EyeCloseIcon } from "./icons/EyeCloseIcon";
 import { customerSchema, type Customer } from "../types/customer";
-import type { SentinelError } from "../types/sentinelError";
 
 export const RegistrationForm = memo(function RegistrationForm() {
   const toast = useToast();
@@ -193,75 +192,3 @@ export const RegistrationForm = memo(function RegistrationForm() {
     </Stack>
   );
 });
-
-interface RegistrationStatus {
-  status: "success" | "failed";
-  message: string;
-}
-
-function registerNewCustomer(customer: Customer): Promise<RegistrationStatus> {
-  const promise = new Promise<RegistrationStatus>((resolve) => {
-    axios
-      .post("/api/register", customer, {
-        headers: { "Content-Type": "application/json" },
-        timeout: 3000, // ms
-        validateStatus: function (status) {
-          return status < 500; // Resolve only if the status code is less than 500
-        },
-      })
-      .then((res) => {
-        if (res.status !== 200) {
-          const sentinelError: SentinelError = res.data.error.sentinel;
-          switch (sentinelError) {
-            case "RegisteredEmail": {
-              resolve({
-                status: "failed",
-                message: "Email is already registered.",
-              });
-              break;
-            }
-
-            case "RegisteredPhoneNumber": {
-              resolve({
-                status: "failed",
-                message: "Phone number is already registered.",
-              });
-              break;
-            }
-
-            default: {
-              resolve({
-                status: "failed",
-                message: "Please check the data you entered again.",
-              });
-              break;
-            }
-          }
-          return;
-        }
-
-        resolve({
-          status: "success",
-          message: "We have created your account.",
-        });
-      })
-      .catch((error) => {
-        if (error.response) {
-          // Retry the request properly when the request is 500, indicating server error
-          resolve({
-            status: "failed",
-            message: "Something is wrong. Please try again.",
-          });
-        } else if (error.request) {
-          resolve({
-            status: "failed",
-            message: "We couldn't process your request due to a timeout.",
-          });
-        } else {
-          // Log the error properly
-          console.error("Error", error.message);
-        }
-      });
-  });
-  return promise;
-}

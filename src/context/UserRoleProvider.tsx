@@ -8,32 +8,18 @@ import {
 import { getCookieValue } from "../utils/cookie";
 
 type UserRole = "customer" | "admin";
-interface UserRoleProviderValue {
-  userRole: UserRole | null;
-  // eslint-disable-next-line no-unused-vars
-  updateUserRole: (role: UserRole | null) => void;
-}
-export const UserRoleContext = createContext<UserRoleProviderValue>({
-  userRole: null,
-  updateUserRole: () => {},
-});
+export const UserRoleContext = createContext<UserRole | null>(null);
 
 export function UserRoleProvider({ children }: PropsWithChildren) {
-  const [role, setRole] = useState<UserRole | null>(null);
-
-  // I don't need to memoize this thing
-  // because i need this component to re-render when "role" is updated
-  function updateUserRole(role: UserRole | null) {
-    setRole(role);
-  }
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
 
   useEffect(() => {
-    const role = getCookieValue("user_role");
-    setRole(role === "" ? null : (role as UserRole));
+    const userRole = getCookieValue("user_role");
+    setUserRole(userRole === "" ? null : (userRole as UserRole));
   }, []);
 
   return (
-    <UserRoleContext.Provider value={{ userRole: role, updateUserRole }}>
+    <UserRoleContext.Provider value={userRole}>
       {children}
     </UserRoleContext.Provider>
   );
