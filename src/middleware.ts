@@ -19,6 +19,7 @@ export async function middleware(req: NextRequest) {
         // Log the error properly
         console.error(error);
         res.cookies.delete("access_token");
+        res.cookies.delete("user_role");
       }
     } else {
       res.cookies.delete("user_role");
