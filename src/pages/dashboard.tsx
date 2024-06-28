@@ -1,3 +1,8 @@
+import { useContext } from "react";
+
+import { UserRoleContext } from "../context/UserRoleProvider";
+
 export default function Dashboard() {
-  return <h1>This is dashboard page</h1>;
+  const { userRole } = useContext(UserRoleContext);
+  return <h1>This is dashboard page {userRole}</h1>;
 }

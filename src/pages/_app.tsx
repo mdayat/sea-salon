@@ -4,6 +4,7 @@ import type { ReactElement, ReactNode } from "react";
 import type { AppProps } from "next/app";
 import type { NextPage } from "next";
 
+import { UserRoleProvider } from "../context/UserRoleProvider";
 import { Navbar } from "../components/Navbar";
 import { Hero } from "../components/Hero";
 import { Footer } from "../components/Footer";
@@ -52,7 +53,9 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       </style>
 
       <ChakraBaseProvider theme={theme}>
-        {getLayout(<Component {...pageProps} />)}
+        <UserRoleProvider>
+          {getLayout(<Component {...pageProps} />)}
+        </UserRoleProvider>
       </ChakraBaseProvider>
     </>
   );

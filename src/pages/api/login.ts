@@ -1,5 +1,5 @@
 import argon2 from "argon2";
-import jwt from "jsonwebtoken";
+import { SignJWT, type JWTPayload } from "jose";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 import { prisma } from "../../libs/prisma";
@@ -9,9 +9,7 @@ import type { FailedResponse, SuccessResponse } from "../../types/api";
 
 export default function handler(
   req: NextApiRequest,
-  res: NextApiResponse<
-    SuccessResponse<{ accessToken: string }> | FailedResponse
-  >
+  res: NextApiResponse<SuccessResponse<null> | FailedResponse>
 ) {
   const promise = new Promise(() => {
     res.setHeader("Content-Type", "application/json");
@@ -62,11 +60,18 @@ export default function handler(
               }
 
               const payload = { role: user.role };
-              createAccessToken(user.id, payload)
+              const monthInSeconds = 2628000;
+
+              createAccessToken(user.id, payload, monthInSeconds)
                 .then((accessToken) => {
+                  res.setHeader("Set-Cookie", [
+                    `access_token=${accessToken}; HttpOnly; Secure; Same-Site=Lax; Path=/; Max-Age=${monthInSeconds}`,
+                    `user_role=${user.role}; Secure; Same-Site=Lax; Path=/; Max-Age=${monthInSeconds}`,
+                  ]);
+
                   res.status(200).json({
                     status: "success",
-                    data: { accessToken },
+                    data: null,
                   });
                 })
                 .catch((error) => {
@@ -142,30 +147,30 @@ function selectCustomer(email: string): Promise<CustomerWithIDAndRole | null> {
   return promise;
 }
 
-function createAccessToken<T extends object>(
+function createAccessToken(
   clientID: string,
-  payload: T
+  payload: JWTPayload,
+  duration: number // In seconds
 ): Promise<string> {
   const promise = new Promise<string>((resolve, reject) => {
     const JWT_SECRET = process.env.JWT_SECRET;
-    const monthInSeconds = 2628000;
+    const unixTimestampInSecs = Math.floor(Date.now() / 1000);
+    const expiration = unixTimestampInSecs + duration;
 
-    jwt.sign(
-      payload,
-      JWT_SECRET as string,
-      {
-        issuer: "sea_salon",
-        subject: clientID,
-        expiresIn: monthInSeconds,
-      },
-      (error, jwtString) => {
-        if (error !== null) {
-          reject(error);
-        } else {
-          resolve(jwtString!);
-        }
-      }
-    );
+    new SignJWT(payload)
+      .setProtectedHeader({ alg: "HS256", typ: "JWT" })
+      .setIssuer("sea_salon")
+      .setIssuedAt(unixTimestampInSecs)
+      .setSubject(clientID)
+      .setExpirationTime(expiration)
+      .setNotBefore(unixTimestampInSecs)
+      .sign(new TextEncoder().encode(JWT_SECRET))
+      .then((jwtString) => {
+        resolve(jwtString);
+      })
+      .catch((error) => {
+        reject(error);
+      });
   });
   return promise;
 }

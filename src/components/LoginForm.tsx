@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { memo, useState, type ChangeEvent, type FormEvent } from "react";
+import {
+  memo,
+  useContext,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 
@@ -19,11 +25,15 @@ import {
   useToast,
 } from "@chakra-ui/react";
 
+import { UserRoleContext } from "../context/UserRoleProvider";
 import { EyeOpenIcon } from "./icons/EyeOpenIcon";
 import { EyeCloseIcon } from "./icons/EyeCloseIcon";
+import { getCookieValue } from "../utils/cookie";
 import { customerSchema, type Customer } from "../types/customer";
+import type { UserRole } from "../types/user";
 
 export const LoginForm = memo(function LoginForm() {
+  const { updateUserRole } = useContext(UserRoleContext);
   const router = useRouter();
   const toast = useToast();
 
@@ -74,6 +84,9 @@ export const LoginForm = memo(function LoginForm() {
           position: "top-right",
         });
 
+        const userRole = getCookieValue("user_role");
+        updateUserRole(userRole === "" ? null : (userRole as UserRole));
+
         setTimeout(() => {
           toast.closeAll();
           router.push("/dashboard");
@@ -106,7 +119,6 @@ export const LoginForm = memo(function LoginForm() {
       <form
         onSubmit={handleFormOnSubmit}
         action=""
-        autoComplete="off"
         className="flex flex-col gap-y-4"
       >
         <FormControl isInvalid={isEmailInvalid} isRequired>
@@ -210,7 +222,6 @@ function login(
           status: "success",
           message: "You will be redirected to dashboard.",
         });
-        localStorage.setItem("accessToken", res.data.data.accessToken);
       })
       .catch((error) => {
         if (error.response) {

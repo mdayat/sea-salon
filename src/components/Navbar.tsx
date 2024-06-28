@@ -1,8 +1,9 @@
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { Fragment, useEffect, useRef } from "react";
-
+import { Fragment, useContext, useEffect, useRef } from "react";
 import { Box, Button, useColorMode, useDisclosure } from "@chakra-ui/react";
+
+import { UserRoleContext } from "../context/UserRoleProvider";
 import { MenuIcon } from "./icons/MenuIcon";
 import { CloseIcon } from "./icons/CloseIcon";
 import { useWindowSize } from "../hooks/useWindowSize";
@@ -27,6 +28,7 @@ const DrawerFooter = dynamic(() =>
 );
 
 export function Navbar() {
+  const { userRole } = useContext(UserRoleContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
 
@@ -85,15 +87,21 @@ export function Navbar() {
         </div>
 
         {width >= 768 ? (
-          <div className="flex justify-between items-center gap-x-6">
-            <Button as={Link} variant="outline" href="/login">
-              Sign In
-            </Button>
+          userRole === null ? (
+            <div className="flex justify-between items-center gap-x-6">
+              <Button as={Link} variant="outline" href="/login">
+                Sign In
+              </Button>
 
-            <Button as={Link} variant="outline" href="/register">
-              Sign Up
+              <Button as={Link} variant="outline" href="/register">
+                Sign Up
+              </Button>
+            </div>
+          ) : (
+            <Button as={Link} variant="outline" href="/dashboard">
+              Dashboard
             </Button>
-          </div>
+          )
         ) : (
           <>
             <button ref={btnRef} type="button" onClick={onOpen}>
@@ -145,25 +153,39 @@ export function Navbar() {
                 </DrawerBody>
 
                 <DrawerFooter className="flex justify-between items-center gap-x-4">
-                  <Button
-                    as={Link}
-                    onClick={onClose}
-                    variant="outline"
-                    href="/login"
-                    className="w-full"
-                  >
-                    Sign In
-                  </Button>
+                  {userRole === null ? (
+                    <>
+                      <Button
+                        as={Link}
+                        onClick={onClose}
+                        variant="outline"
+                        href="/login"
+                        className="w-full"
+                      >
+                        Sign In
+                      </Button>
 
-                  <Button
-                    as={Link}
-                    onClick={onClose}
-                    variant="outline"
-                    href="/register"
-                    className="w-full"
-                  >
-                    Sign Up
-                  </Button>
+                      <Button
+                        as={Link}
+                        onClick={onClose}
+                        variant="outline"
+                        href="/register"
+                        className="w-full"
+                      >
+                        Sign Up
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      as={Link}
+                      onClick={onClose}
+                      variant="outline"
+                      href="/dashboard"
+                      className="w-full"
+                    >
+                      Dashboard
+                    </Button>
+                  )}
                 </DrawerFooter>
               </DrawerContent>
             </Drawer>
