@@ -1,5 +1,7 @@
+import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Fragment, type ReactElement } from "react";
+import { Button } from "@chakra-ui/react";
 
 import { useWindowSize } from "../hooks/useWindowSize";
 import type { NextPageWithLayout } from "./_app";
@@ -36,6 +38,17 @@ const Login: NextPageWithLayout = () => {
   return (
     <Grid templateColumns="repeat(2, 1fr)" className="h-screen">
       <GridItem bg="purple.600" className="relative">
+        <Button
+          as={Link}
+          href="/"
+          variant="link"
+          display="block"
+          fontSize="2xl"
+          className="w-[calc(100%-64px)] max-w-lg mx-auto mt-8"
+        >
+          SEA Salon
+        </Button>
+
         <LoginAndRegistrationLeftPanel />
       </GridItem>
 
