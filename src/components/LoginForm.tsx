@@ -20,8 +20,8 @@ import {
 
 import { EyeOpenIcon } from "./icons/EyeOpenIcon";
 import { EyeCloseIcon } from "./icons/EyeCloseIcon";
-import { login } from "../utils/auth";
-import { customerSchema, type Customer } from "../types/customer";
+import { login } from "../utils/user";
+import { userSchema, type User } from "../types/user";
 
 export const LoginForm = memo(function LoginForm() {
   const router = useRouter();
@@ -31,9 +31,7 @@ export const LoginForm = memo(function LoginForm() {
   const [isEmailInvalid, setIsEmailInvalid] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-  const [customer, setCustomer] = useState<
-    Omit<Customer, "fullName" | "phoneNumber">
-  >({
+  const [user, setUser] = useState<Pick<User, "email" | "password">>({
     email: "",
     password: "",
   });
@@ -41,9 +39,9 @@ export const LoginForm = memo(function LoginForm() {
   function handleFormOnSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const result = customerSchema
-      .omit({ fullName: true, phoneNumber: true })
-      .safeParse(customer);
+    const result = userSchema
+      .pick({ email: true, password: true })
+      .safeParse(user);
 
     if (result.success === false) {
       setIsEmailInvalid(true);
@@ -51,23 +49,11 @@ export const LoginForm = memo(function LoginForm() {
     }
 
     setLoading(true);
-    login(customer)
-      .then((res) => {
-        if (res.status === "failed") {
-          toast({
-            title: "Login Failed",
-            description: res.message,
-            status: "error",
-            duration: null,
-            isClosable: true,
-            position: "top-right",
-          });
-          return;
-        }
-
+    login(user)
+      .then(() => {
         toast({
           title: "Login Success",
-          description: res.message,
+          description: "You will be redirected to dashboard",
           status: "success",
           duration: null,
           isClosable: true,
@@ -79,6 +65,16 @@ export const LoginForm = memo(function LoginForm() {
           router.reload();
         }, 1500);
       })
+      .catch((error) => {
+        toast({
+          title: "Login Failed",
+          description: error.message,
+          status: "error",
+          duration: null,
+          isClosable: true,
+          position: "top-right",
+        });
+      })
       .finally(() => {
         setLoading(false);
         if (isEmailInvalid) {
@@ -88,8 +84,8 @@ export const LoginForm = memo(function LoginForm() {
   }
 
   function handleInputOnChange(event: ChangeEvent<HTMLInputElement>) {
-    setCustomer({
-      ...customer,
+    setUser({
+      ...user,
       [event.currentTarget.name]: event.currentTarget.value,
     });
   }
@@ -111,7 +107,7 @@ export const LoginForm = memo(function LoginForm() {
         <FormControl isInvalid={isEmailInvalid} isRequired>
           <FormLabel>Email</FormLabel>
           <Input
-            value={customer.email}
+            value={user.email}
             onChange={handleInputOnChange}
             type="email"
             name="email"
@@ -124,7 +120,7 @@ export const LoginForm = memo(function LoginForm() {
           <FormLabel>Password</FormLabel>
           <InputGroup>
             <Input
-              value={customer.password}
+              value={user.password}
               onChange={handleInputOnChange}
               type={isPasswordVisible ? "text" : "password"}
               minLength={12}

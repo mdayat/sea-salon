@@ -4,7 +4,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 import { prisma } from "../../libs/prisma";
 import { handleInvalidMethod } from "../../utils/middlewares";
-import { customerSchema, type Customer } from "../../types/customer";
+import { userSchema, type User } from "../../types/user";
 import type { FailedResponse, SuccessResponse } from "../../types/api";
 
 export default function handler(
@@ -14,22 +14,21 @@ export default function handler(
   const promise = new Promise(() => {
     res.setHeader("Content-Type", "application/json");
     if (req.method === "POST") {
-      const result = customerSchema.safeParse(req.body);
+      const result = userSchema
+        .omit({ id: true, role: true })
+        .safeParse(req.body);
+
       if (result.success === false) {
         res.status(400).json({
           status: "failed",
-          error: {
-            code: 400,
-            sentinel: "InvalidJSON",
-            message: "Invalid JSON schema for creating a new user",
-          },
+          message: "Invalid JSON schema",
         });
         return;
       }
 
       hashPassword(result.data.password)
         .then((hashedPassword) => {
-          insertCustomer(result.data, hashedPassword)
+          insertUser(result.data, hashedPassword)
             .then(() => {
               res.status(200).json({ status: "success", data: null });
             })
@@ -43,11 +42,7 @@ export default function handler(
 
                 res.status(500).json({
                   status: "failed",
-                  error: {
-                    code: 500,
-                    sentinel: "ServerError",
-                    message: "Failed when inserting a new user",
-                  },
+                  message: "Failed when inserting a new user",
                 });
                 return;
               }
@@ -57,20 +52,12 @@ export default function handler(
                 if (uniqueField === "email") {
                   res.status(400).json({
                     status: "failed",
-                    error: {
-                      code: 400,
-                      sentinel: "RegisteredEmail",
-                      message: "Email is already registered",
-                    },
+                    message: "Email is already registered",
                   });
                 } else {
                   res.status(400).json({
                     status: "failed",
-                    error: {
-                      code: 400,
-                      sentinel: "RegisteredPhoneNumber",
-                      message: "Phone number is already registered",
-                    },
+                    message: "Phone number is already registered",
                   });
                 }
               }
@@ -82,11 +69,7 @@ export default function handler(
 
           res.status(500).json({
             status: "failed",
-            error: {
-              code: 500,
-              sentinel: "ServerError",
-              message: "Failed when hashing a password",
-            },
+            message: "Failed when hashing a password",
           });
         });
     } else {
@@ -115,17 +98,17 @@ function hashPassword(password: string): Promise<string> {
   return promise;
 }
 
-function insertCustomer(
-  customer: Omit<Customer, "password">,
+function insertUser(
+  user: Omit<User, "password" | "id" | "role">,
   hashedPassword: string
 ): Promise<null> {
   const promise = new Promise<null>((resolve, reject) => {
     prisma.user
       .create({
         data: {
-          full_name: customer.fullName,
-          email: customer.email,
-          phone_number: customer.phoneNumber,
+          full_name: user.fullName,
+          email: user.email,
+          phone_number: user.phoneNumber,
           password: hashedPassword,
           role: "customer",
         },

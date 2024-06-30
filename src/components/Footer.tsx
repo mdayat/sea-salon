@@ -6,9 +6,9 @@ export function Footer() {
   const fullYear = new Date().getFullYear();
 
   return (
-    <footer className="font-poppins max-w-screen-xl px-8 mx-auto mt-16 md:mt-20">
+    <footer className="font-poppins max-w-screen-xl px-8 mx-auto">
       <Divider />
-      <div className="flex justify-between items-center gap-x-8 my-8 px-1">
+      <div className="flex justify-between items-center gap-x-8 py-8 px-1">
         <Text color="gray.300" className="font-medium">
           &copy; {fullYear} SEA Salon. All rights reserved.
         </Text>

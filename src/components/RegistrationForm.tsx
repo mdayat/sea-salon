@@ -17,10 +17,10 @@ import {
   useToast,
 } from "@chakra-ui/react";
 
-import { registerNewCustomer } from "../utils/auth";
+import { register } from "../utils/user";
 import { EyeOpenIcon } from "./icons/EyeOpenIcon";
 import { EyeCloseIcon } from "./icons/EyeCloseIcon";
-import { customerSchema, type Customer } from "../types/customer";
+import { userSchema, type User } from "../types/user";
 
 export const RegistrationForm = memo(function RegistrationForm() {
   const toast = useToast();
@@ -29,7 +29,7 @@ export const RegistrationForm = memo(function RegistrationForm() {
   const [isEmailInvalid, setIsEmailInvalid] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-  const [customer, setCustomer] = useState<Customer>({
+  const [user, setUser] = useState<Omit<User, "id" | "role">>({
     fullName: "",
     email: "",
     phoneNumber: "",
@@ -38,32 +38,29 @@ export const RegistrationForm = memo(function RegistrationForm() {
 
   function handleFormOnSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    const result = customerSchema.safeParse(customer);
+    const result = userSchema.omit({ id: true, role: true }).safeParse(user);
     if (result.success === false) {
       setIsEmailInvalid(true);
       return;
     }
 
     setLoading(true);
-    registerNewCustomer(customer)
-      .then(({ status, message }) => {
-        if (status !== "success") {
-          toast({
-            title: "Registration Failed",
-            description: message,
-            status: "error",
-            duration: null,
-            isClosable: true,
-            position: "top-right",
-          });
-          return;
-        }
-
+    register(user)
+      .then(() => {
         toast({
           title: "Registration Success",
-          description: message,
+          description: "We have created your account",
           status: "success",
+          duration: null,
+          isClosable: true,
+          position: "top-right",
+        });
+      })
+      .catch((error) => {
+        toast({
+          title: "Registration Failed",
+          description: error.message,
+          status: "error",
           duration: null,
           isClosable: true,
           position: "top-right",
@@ -75,8 +72,8 @@ export const RegistrationForm = memo(function RegistrationForm() {
   }
 
   function handleInputOnChange(event: ChangeEvent<HTMLInputElement>) {
-    setCustomer({
-      ...customer,
+    setUser({
+      ...user,
       [event.currentTarget.name]: event.currentTarget.value,
     });
   }
@@ -99,7 +96,7 @@ export const RegistrationForm = memo(function RegistrationForm() {
         <FormControl isRequired>
           <FormLabel>Full Name</FormLabel>
           <Input
-            value={customer.fullName}
+            value={user.fullName}
             onChange={handleInputOnChange}
             type="text"
             name="fullName"
@@ -110,7 +107,7 @@ export const RegistrationForm = memo(function RegistrationForm() {
         <FormControl isInvalid={isEmailInvalid} isRequired>
           <FormLabel>Email</FormLabel>
           <Input
-            value={customer.email}
+            value={user.email}
             onChange={handleInputOnChange}
             type="email"
             name="email"
@@ -122,7 +119,7 @@ export const RegistrationForm = memo(function RegistrationForm() {
         <FormControl isRequired>
           <FormLabel>Phone Number</FormLabel>
           <Input
-            value={customer.phoneNumber}
+            value={user.phoneNumber}
             onChange={handleInputOnChange}
             type="tel"
             name="phoneNumber"
@@ -138,7 +135,7 @@ export const RegistrationForm = memo(function RegistrationForm() {
           <FormLabel>Password</FormLabel>
           <InputGroup>
             <Input
-              value={customer.password}
+              value={user.password}
               onChange={handleInputOnChange}
               type={isPasswordVisible ? "text" : "password"}
               minLength={12}

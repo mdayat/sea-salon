@@ -1,9 +1,19 @@
-import { ChangeEvent, FormEvent, useRef, useState } from "react";
+import { useRouter } from "next/router";
+import {
+  type ChangeEvent,
+  type Dispatch,
+  type FormEvent,
+  type SetStateAction,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
 import {
   Button,
   FormControl,
   FormHelperText,
   FormLabel,
+  Heading,
   Input,
   Modal,
   ModalBody,
@@ -13,6 +23,9 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 
+import { getUser } from "../utils/user";
+import type { User } from "../types/user";
+
 interface Reservation {
   name: string;
   phoneNumber: string;
@@ -21,9 +34,15 @@ interface Reservation {
   time: string;
 }
 
-export function CreateReservationForm() {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+interface ReservationFormProps {
+  user: Pick<User, "fullName" | "phoneNumber">;
+  setUser: Dispatch<SetStateAction<Pick<User, "fullName" | "phoneNumber">>>;
+}
+
+export function ReservationForm({ user, setUser }: ReservationFormProps) {
+  const router = useRouter();
   const btnRef = useRef(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const minDate = getMinDate();
   const maxDate = getMaxDate();
@@ -45,22 +64,49 @@ export function CreateReservationForm() {
     });
   }
 
-  function handleFormOnSubmit(
-    event: FormEvent<HTMLFormElement | HTMLDivElement>
-  ) {
-    event.preventDefault();
+  const handleFormOnSubmit = useCallback(
+    (event: FormEvent<HTMLFormElement | HTMLDivElement>) => {
+      event.preventDefault();
+      console.log(reservation);
+    },
+    [reservation]
+  );
+
+  function handleModalOnOpen() {
+    if (user.fullName === "" && user.phoneNumber === "") {
+      getUser()
+        .then((user) => {
+          setUser(user);
+          setReservation({
+            ...reservation,
+            name: user.fullName,
+            phoneNumber: user.phoneNumber,
+          });
+        })
+        .catch(() => {
+          router.reload();
+        });
+    } else {
+      setReservation({
+        ...reservation,
+        name: user.fullName,
+        phoneNumber: user.phoneNumber,
+      });
+    }
+    onOpen();
   }
 
   return (
     <>
-      <Button
-        onClick={onOpen}
-        colorScheme="purple"
-        display="block"
-        className="ml-auto mb-6"
-      >
-        Make a reservation
-      </Button>
+      <div className="flex justify-between items-center mb-8">
+        <Heading as="h1" size="lg">
+          Reservations
+        </Heading>
+
+        <Button onClick={handleModalOnOpen} colorScheme="purple">
+          Make a reservation
+        </Button>
+      </div>
 
       <Modal
         closeOnOverlayClick={false}
@@ -80,8 +126,7 @@ export function CreateReservationForm() {
             <FormControl isReadOnly>
               <FormLabel className="select-none">Name</FormLabel>
               <Input
-                value={reservation.name}
-                onChange={handleInputOnChange}
+                defaultValue={reservation.name}
                 variant="filled"
                 type="text"
                 name="name"
@@ -96,8 +141,7 @@ export function CreateReservationForm() {
             <FormControl isReadOnly>
               <FormLabel className="select-none">Phone Number</FormLabel>
               <Input
-                value={reservation.phoneNumber}
-                onChange={handleInputOnChange}
+                defaultValue={reservation.phoneNumber}
                 variant="filled"
                 type="text"
                 name="phoneNumber"

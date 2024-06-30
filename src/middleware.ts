@@ -1,9 +1,8 @@
-import { jwtVerify, type JWTPayload } from "jose";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+import { verifyAccessToken } from "./utils/jwt";
 import { checkAndUpdateUserRoleCookie } from "./utils/cookie";
-import type { UserRole } from "./types/user";
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
@@ -60,22 +59,6 @@ export async function middleware(req: NextRequest) {
   }
 }
 
-// This function has possibilities to throw errors
-// So handle them gracefully
-async function verifyAccessToken(
-  accessToken: string
-): Promise<{ role: UserRole } & JWTPayload> {
-  const JWT_SECRET = process.env.JWT_SECRET;
-  const { payload } = await jwtVerify<{ role: UserRole }>(
-    accessToken,
-    new TextEncoder().encode(JWT_SECRET),
-    {
-      issuer: "sea_salon",
-    }
-  );
-  return payload;
-}
-
 export const config = {
-  matcher: ["/", "/dashboard/:path", "/login", "/register"],
+  matcher: ["/", "/login", "/register", "/dashboard/:path"],
 };

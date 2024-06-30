@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Table,
   TableCaption,
@@ -9,15 +10,20 @@ import {
   Tr,
 } from "@chakra-ui/react";
 
-import { CreateReservationForm } from "../components/CreateReservationForm";
+import { ReservationForm } from "../components/ReservationForm";
 import { Navbar } from "../components/Navbar";
-import { Footer } from "../components/Footer";
 import type { NextPageWithLayout } from "./_app";
+import type { User } from "../types/user";
 
 const Dashboard: NextPageWithLayout = () => {
+  const [user, setUser] = useState<Pick<User, "fullName" | "phoneNumber">>({
+    fullName: "",
+    phoneNumber: "",
+  });
+
   return (
     <div className="max-w-screen-xl px-8 mx-auto mt-16 md:mt-20">
-      <CreateReservationForm />
+      <ReservationForm user={user} setUser={setUser} />
 
       <TableContainer>
         <Table variant="simple">
@@ -50,7 +56,6 @@ Dashboard.getLayout = (page) => {
     <>
       <Navbar />
       <main className="font-poppins">{page}</main>
-      <Footer />
     </>
   );
 };

@@ -2,10 +2,10 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { Fragment, useContext, useEffect, useMemo } from "react";
-import { Box, Button, useColorMode, useToast } from "@chakra-ui/react";
+import { Box, Button, useColorMode } from "@chakra-ui/react";
 
 import { UserRoleContext } from "../../context/UserRoleProvider";
-import { logout } from "../../utils/auth";
+import { logout } from "../../utils/user";
 import { useWindowSize } from "../../hooks/useWindowSize";
 
 const MobileDrawer = dynamic(() =>
@@ -14,8 +14,6 @@ const MobileDrawer = dynamic(() =>
 
 export function Navbar() {
   const router = useRouter();
-  const toast = useToast();
-
   const userRole = useContext(UserRoleContext);
   const { colorMode, toggleColorMode } = useColorMode();
   const { width } = useWindowSize();
@@ -36,20 +34,7 @@ export function Navbar() {
   }, [userRole, router.pathname]);
 
   function handleOnLogout() {
-    logout().then((res) => {
-      if (res.status === "failed") {
-        toast({
-          title: "Logout Failed",
-          description: res.message,
-          status: "error",
-          duration: null,
-          isClosable: true,
-          position: "top-right",
-        });
-        return;
-      }
-
-      toast.closeAll();
+    logout().then(() => {
       router.reload();
     });
   }

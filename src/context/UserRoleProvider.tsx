@@ -6,8 +6,8 @@ import {
 } from "react";
 
 import { getCookieValue } from "../utils/cookie";
+import type { UserRole } from "../types/user";
 
-type UserRole = "customer" | "admin";
 export const UserRoleContext = createContext<UserRole | null>(null);
 
 export function UserRoleProvider({ children }: PropsWithChildren) {
