@@ -44,9 +44,9 @@ export function ReservationForm({ user, setUser }: ReservationFormProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { minDate, maxDate } = getMinAndMaxDate();
 
-  const [reservation, setReservation] = useState<Omit<Reservation, "id">>({
-    customerName: "",
-    phoneNumber: "",
+  const [reservation, setReservation] = useState<
+    Pick<Reservation, "serviceType" | "date" | "time">
+  >({
     serviceType: "haircuts_and_styling",
     date: "",
     time: "",
@@ -97,6 +97,7 @@ export function ReservationForm({ user, setUser }: ReservationFormProps) {
           setTimeout(() => {
             toast.closeAll();
             onClose();
+            router.reload();
           }, 1000);
         })
         .catch((error) => {
@@ -113,7 +114,7 @@ export function ReservationForm({ user, setUser }: ReservationFormProps) {
           setIsLoading(false);
         });
     },
-    [reservation, toast, onClose]
+    [reservation, toast, router, onClose]
   );
 
   function handleModalOnOpen() {
@@ -121,21 +122,10 @@ export function ReservationForm({ user, setUser }: ReservationFormProps) {
       getUser()
         .then((user) => {
           setUser(user);
-          setReservation({
-            ...reservation,
-            customerName: user.fullName,
-            phoneNumber: user.phoneNumber,
-          });
         })
         .catch(() => {
           router.reload();
         });
-    } else {
-      setReservation({
-        ...reservation,
-        customerName: user.fullName,
-        phoneNumber: user.phoneNumber,
-      });
     }
     onOpen();
   }
@@ -170,10 +160,10 @@ export function ReservationForm({ user, setUser }: ReservationFormProps) {
             <FormControl isReadOnly>
               <FormLabel className="select-none">Name</FormLabel>
               <Input
-                defaultValue={reservation.customerName}
+                defaultValue={user.fullName}
                 variant="filled"
                 type="text"
-                name="customerName"
+                name="name"
                 disabled
               />
               <FormHelperText>
@@ -185,7 +175,7 @@ export function ReservationForm({ user, setUser }: ReservationFormProps) {
             <FormControl isReadOnly>
               <FormLabel className="select-none">Phone Number</FormLabel>
               <Input
-                defaultValue={reservation.phoneNumber}
+                defaultValue={user.phoneNumber}
                 variant="filled"
                 type="text"
                 name="phoneNumber"

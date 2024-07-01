@@ -1,6 +1,6 @@
-interface SuccessResponse<T> {
+interface SuccessResponse<T = null> {
   status: "success";
-  data: T | null;
+  data: T;
 }
 
 interface FailedResponse {

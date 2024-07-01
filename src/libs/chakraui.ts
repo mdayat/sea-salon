@@ -16,6 +16,7 @@ const {
   Table,
   Modal,
   Select,
+  Spinner,
 } = chakraTheme.components;
 
 export const theme = extendBaseTheme({
@@ -39,5 +40,6 @@ export const theme = extendBaseTheme({
     Table,
     Modal,
     Select,
+    Spinner,
   },
 });

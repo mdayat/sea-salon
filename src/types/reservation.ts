@@ -6,6 +6,8 @@ const serviceTypeSchema = zod.union([
   zod.literal("facial_treatments"),
 ]);
 
+type ServiceType = zod.infer<typeof serviceTypeSchema>;
+
 const reservationSchema = zod.object({
   id: zod.string(),
   customerName: zod.string(),
@@ -27,4 +29,4 @@ const reservationSchema = zod.object({
 type Reservation = zod.infer<typeof reservationSchema>;
 
 export { reservationSchema };
-export type { Reservation };
+export type { ServiceType, Reservation };
