@@ -12,11 +12,26 @@ enum role {
   admin
 }
 
+enum service_type {
+  haircuts_and_styling
+  manicure_and_pedicure
+  facial_treatments
+}
+
 model user {
-  id           String @id @default(uuid()) @db.Uuid
-  full_name    String @db.VarChar(255)
-  email        String @unique @db.VarChar(255)
-  phone_number String @unique @db.VarChar(15)
-  password     String @db.Text
+  id           String        @id @default(uuid()) @db.Uuid
+  full_name    String        @db.VarChar(255)
+  email        String        @unique @db.VarChar(255)
+  phone_number String        @unique @db.VarChar(15)
+  password     String        @db.Text
   role         role
+  reservations reservation[]
+}
+
+model reservation {
+  id           String       @id @default(uuid()) @db.Uuid
+  customer     user         @relation(fields: [customer_id], references: [id])
+  customer_id  String       @default(uuid()) @db.Uuid
+  service_type service_type
+  datetime     DateTime     @db.Timestamp()
 }
