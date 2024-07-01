@@ -21,18 +21,13 @@ import {
   ModalOverlay,
   Select,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 
 import { getUser } from "../utils/user";
+import { createReservation, getMinAndMaxDate } from "../utils/reservation";
+import { type Reservation, reservationSchema } from "../types/reservation";
 import type { User } from "../types/user";
-
-interface Reservation {
-  name: string;
-  phoneNumber: string;
-  serviceType: string;
-  date: string;
-  time: string;
-}
 
 interface ReservationFormProps {
   user: Pick<User, "fullName" | "phoneNumber">;
@@ -40,17 +35,19 @@ interface ReservationFormProps {
 }
 
 export function ReservationForm({ user, setUser }: ReservationFormProps) {
+  const toast = useToast();
   const router = useRouter();
+
   const btnRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { minDate, maxDate } = getMinAndMaxDate();
 
-  const minDate = getMinDate();
-  const maxDate = getMaxDate();
-
-  const [reservation, setReservation] = useState<Reservation>({
-    name: "",
+  const [reservation, setReservation] = useState<Omit<Reservation, "id">>({
+    customerName: "",
     phoneNumber: "",
-    serviceType: "",
+    serviceType: "haircuts_and_styling",
     date: "",
     time: "",
   });
@@ -58,18 +55,65 @@ export function ReservationForm({ user, setUser }: ReservationFormProps) {
   function handleInputOnChange(
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) {
+    const inputValue =
+      event.currentTarget.name === "time"
+        ? event.currentTarget.value + ":00"
+        : event.currentTarget.value;
+
     setReservation({
       ...reservation,
-      [event.currentTarget.name]: event.currentTarget.value,
+      [event.currentTarget.name]: inputValue,
     });
   }
 
   const handleFormOnSubmit = useCallback(
     (event: FormEvent<HTMLFormElement | HTMLDivElement>) => {
       event.preventDefault();
-      console.log(reservation);
+      const result = reservationSchema
+        .omit({ id: true })
+        .safeParse(reservation);
+
+      if (result.success === false) {
+        // Log the error properly
+        console.error(result.error);
+      }
+
+      setIsLoading(true);
+      createReservation({
+        serviceType: reservation.serviceType,
+        date: reservation.date,
+        time: reservation.time,
+      })
+        .then(() => {
+          toast({
+            title: "Create Reservation Success",
+            description: "We have created your reservation",
+            status: "success",
+            duration: null,
+            isClosable: true,
+            position: "top-right",
+          });
+
+          setTimeout(() => {
+            toast.closeAll();
+            onClose();
+          }, 1000);
+        })
+        .catch((error) => {
+          toast({
+            title: "Create Reservation Failed",
+            description: error.message,
+            status: "error",
+            duration: null,
+            isClosable: true,
+            position: "top-right",
+          });
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     },
-    [reservation]
+    [reservation, toast, onClose]
   );
 
   function handleModalOnOpen() {
@@ -79,7 +123,7 @@ export function ReservationForm({ user, setUser }: ReservationFormProps) {
           setUser(user);
           setReservation({
             ...reservation,
-            name: user.fullName,
+            customerName: user.fullName,
             phoneNumber: user.phoneNumber,
           });
         })
@@ -89,7 +133,7 @@ export function ReservationForm({ user, setUser }: ReservationFormProps) {
     } else {
       setReservation({
         ...reservation,
-        name: user.fullName,
+        customerName: user.fullName,
         phoneNumber: user.phoneNumber,
       });
     }
@@ -126,10 +170,10 @@ export function ReservationForm({ user, setUser }: ReservationFormProps) {
             <FormControl isReadOnly>
               <FormLabel className="select-none">Name</FormLabel>
               <Input
-                defaultValue={reservation.name}
+                defaultValue={reservation.customerName}
                 variant="filled"
                 type="text"
-                name="name"
+                name="customerName"
                 disabled
               />
               <FormHelperText>
@@ -157,6 +201,7 @@ export function ReservationForm({ user, setUser }: ReservationFormProps) {
               <FormLabel>Service Type</FormLabel>
               <Select
                 onChange={handleInputOnChange}
+                name="serviceType"
                 placeholder="Select Service"
                 className="cursor-pointer"
               >
@@ -208,7 +253,12 @@ export function ReservationForm({ user, setUser }: ReservationFormProps) {
                 Cancle
               </Button>
 
-              <Button type="submit" colorScheme="purple">
+              <Button
+                isLoading={isLoading}
+                loadingText="Submitting"
+                type="submit"
+                colorScheme="purple"
+              >
                 Submit
               </Button>
             </div>
@@ -217,20 +267,4 @@ export function ReservationForm({ user, setUser }: ReservationFormProps) {
       </Modal>
     </>
   );
-}
-
-function getMinDate(): string {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const dateOfMonth = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${dateOfMonth}`;
-}
-
-function getMaxDate(): string {
-  const date = new Date(new Date().getFullYear(), 11, 31);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const dateOfMonth = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${dateOfMonth}`;
 }
