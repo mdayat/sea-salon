@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 import {
+  Heading,
   Spinner,
   Table,
   TableCaption,
@@ -21,6 +22,7 @@ import type { NextPageWithLayout } from "./_app";
 import type { Reservation } from "../types/reservation";
 import type { User } from "../types/user";
 import type { SuccessResponse } from "../types/api";
+import { ReviewForm } from "../components/ReviewForm";
 
 const Dashboard: NextPageWithLayout = () => {
   const [reservations, setReservations] = useState<Omit<Reservation, "id">[]>(
@@ -80,7 +82,16 @@ const Dashboard: NextPageWithLayout = () => {
 
   return (
     <div className="max-w-screen-xl px-8 mx-auto mt-16 md:mt-20">
-      <ReservationForm user={user} setUser={setUser} />
+      <div className="flex justify-between items-center mb-8">
+        <Heading as="h1" size="lg">
+          Reservations
+        </Heading>
+
+        <div className="flex justify-between items-center gap-x-6">
+          <ReviewForm user={user} setUser={setUser} />
+          <ReservationForm user={user} setUser={setUser} />
+        </div>
+      </div>
 
       {isLoading ? (
         <div className="flex justify-center items-center">

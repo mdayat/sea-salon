@@ -17,6 +17,8 @@ const {
   Modal,
   Select,
   Spinner,
+  NumberInput,
+  Textarea,
 } = chakraTheme.components;
 
 export const theme = extendBaseTheme({
@@ -41,5 +43,7 @@ export const theme = extendBaseTheme({
     Modal,
     Select,
     Spinner,
+    NumberInput,
+    Textarea,
   },
 });

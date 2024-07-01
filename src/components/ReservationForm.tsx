@@ -13,7 +13,6 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
-  Heading,
   Input,
   Modal,
   ModalBody,
@@ -132,15 +131,9 @@ export function ReservationForm({ user, setUser }: ReservationFormProps) {
 
   return (
     <>
-      <div className="flex justify-between items-center mb-8">
-        <Heading as="h1" size="lg">
-          Reservations
-        </Heading>
-
-        <Button onClick={handleModalOnOpen} colorScheme="purple">
-          Make a reservation
-        </Button>
-      </div>
+      <Button onClick={handleModalOnOpen} colorScheme="purple">
+        Create reservation
+      </Button>
 
       <Modal
         closeOnOverlayClick={false}
