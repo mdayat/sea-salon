@@ -26,6 +26,7 @@ model user {
   password     String        @db.Text
   role         role
   reservations reservation[]
+  reviews      review[]
 }
 
 model reservation {
@@ -34,4 +35,12 @@ model reservation {
   customer_id  String       @default(uuid()) @db.Uuid
   service_type service_type
   datetime     DateTime     @db.Timestamp()
+}
+
+model review {
+  id          String @id @default(uuid()) @db.Uuid
+  reviewer    user   @relation(fields: [reviewer_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  reviewer_id String @default(uuid()) @db.Uuid
+  rating      Int    @db.SmallInt
+  description String @db.Text
 }
