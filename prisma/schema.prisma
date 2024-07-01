@@ -30,7 +30,7 @@ model user {
 
 model reservation {
   id           String       @id @default(uuid()) @db.Uuid
-  customer     user         @relation(fields: [customer_id], references: [id])
+  customer     user         @relation(fields: [customer_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   customer_id  String       @default(uuid()) @db.Uuid
   service_type service_type
   datetime     DateTime     @db.Timestamp()
