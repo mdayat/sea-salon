@@ -1,4 +1,5 @@
 import Link from "next/link";
+import axios from "axios";
 import { memo, useState, type ChangeEvent, type FormEvent } from "react";
 
 import {
@@ -17,7 +18,6 @@ import {
   useToast,
 } from "@chakra-ui/react";
 
-import { register } from "../utils/user";
 import { EyeOpenIcon } from "./icons/EyeOpenIcon";
 import { EyeCloseIcon } from "./icons/EyeCloseIcon";
 import { userSchema, type User } from "../types/user";
@@ -45,7 +45,10 @@ export const RegistrationForm = memo(function RegistrationForm() {
     }
 
     setLoading(true);
-    register(user)
+    axios
+      .post("/api/register", user, {
+        headers: { "Content-Type": "application/json" },
+      })
       .then(() => {
         toast({
           title: "Registration Success",
@@ -57,14 +60,43 @@ export const RegistrationForm = memo(function RegistrationForm() {
         });
       })
       .catch((error) => {
-        toast({
-          title: "Registration Failed",
-          description: error.message,
-          status: "error",
-          duration: null,
-          isClosable: true,
-          position: "top-right",
-        });
+        if (error.response) {
+          if (error.response.status === 400) {
+            toast({
+              title: "Registration Failed",
+              description: error.message,
+              status: "error",
+              duration: null,
+              isClosable: true,
+              position: "top-right",
+            });
+          } else {
+            // Retry and log the error properly
+            console.error("Error", error.message);
+            toast({
+              title: "Registration Failed",
+              description: "Something is wrong, please try again",
+              status: "error",
+              duration: null,
+              isClosable: true,
+              position: "top-right",
+            });
+          }
+        } else if (error.request) {
+          // Retry and log the error properly
+          console.error("Error", error.message);
+          toast({
+            title: "Registration Failed",
+            description: "Registration failed due to timeout",
+            status: "error",
+            duration: null,
+            isClosable: true,
+            position: "top-right",
+          });
+        } else {
+          // Log the error properly
+          console.error("Error", error.message);
+        }
       })
       .finally(() => {
         setLoading(false);

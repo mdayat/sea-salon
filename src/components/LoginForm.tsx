@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { memo, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/router";
+import axios from "axios";
 
 import {
   Button,
@@ -20,7 +21,6 @@ import {
 
 import { EyeOpenIcon } from "./icons/EyeOpenIcon";
 import { EyeCloseIcon } from "./icons/EyeCloseIcon";
-import { login } from "../utils/user";
 import { userSchema, type User } from "../types/user";
 
 export const LoginForm = memo(function LoginForm() {
@@ -49,7 +49,10 @@ export const LoginForm = memo(function LoginForm() {
     }
 
     setLoading(true);
-    login(user)
+    axios
+      .post("/api/login", user, {
+        headers: { "Content-Type": "application/json" },
+      })
       .then(() => {
         toast({
           title: "Login Success",
@@ -66,14 +69,43 @@ export const LoginForm = memo(function LoginForm() {
         }, 1500);
       })
       .catch((error) => {
-        toast({
-          title: "Login Failed",
-          description: error.message,
-          status: "error",
-          duration: null,
-          isClosable: true,
-          position: "top-right",
-        });
+        if (error.response) {
+          if (error.response.status === 400) {
+            toast({
+              title: "Login Failed",
+              description: error.message,
+              status: "error",
+              duration: null,
+              isClosable: true,
+              position: "top-right",
+            });
+          } else {
+            // Retry and log the error properly
+            console.error("Error", error.message);
+            toast({
+              title: "Login Failed",
+              description: "Something is wrong, please try again",
+              status: "error",
+              duration: null,
+              isClosable: true,
+              position: "top-right",
+            });
+          }
+        } else if (error.request) {
+          // Retry and log the error properly
+          console.error("Error", error.message);
+          toast({
+            title: "Login Failed",
+            description: "Login failed due to timeout",
+            status: "error",
+            duration: null,
+            isClosable: true,
+            position: "top-right",
+          });
+        } else {
+          // Log the error properly
+          console.error("Error", error.message);
+        }
       })
       .finally(() => {
         setLoading(false);

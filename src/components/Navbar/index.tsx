@@ -2,10 +2,10 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { Fragment, useContext, useEffect, useMemo } from "react";
+import axios from "axios";
 import { Box, Button, useColorMode } from "@chakra-ui/react";
 
 import { UserRoleContext } from "../../context/UserRoleProvider";
-import { logout } from "../../utils/user";
 import { useWindowSize } from "../../hooks/useWindowSize";
 
 const MobileDrawer = dynamic(() =>
@@ -34,9 +34,20 @@ export function Navbar() {
   }, [userRole, router.pathname]);
 
   function handleOnLogout() {
-    logout().then(() => {
-      router.reload();
-    });
+    axios
+      .get("/api/logout")
+      .then(() => {
+        router.reload();
+      })
+      .catch((error) => {
+        if (error.response || error.request) {
+          // Retry and log the error properly
+          console.error("Error", error.message);
+        } else {
+          // Log the error properly
+          console.error("Error", error.message);
+        }
+      });
   }
 
   useEffect(() => {
