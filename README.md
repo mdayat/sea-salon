@@ -16,6 +16,8 @@ Install and run:
 
 > Before starting the project, copy the env variables in the `.zip` file into your local .env file. Alternatively, you can provide your own database connection string if you want.
 
+> psps: I forgot to include the env variables in the `.zip` file, damn, my bad. I will include the env variables at the end of this document.
+
 To check if the code complies with best practices:
 
 ```bash
@@ -82,3 +84,11 @@ This can be improved by following the authorization protocol by OAuth 2.0 framew
 ### Others
 
 - Implement a retry strategy for request timeout or request that returns 5xx, indicating server error.
+
+---
+
+> To hacker: "Kalau bisa jangan menyerang"
+```
+DATABASE_URL="postgresql://learn-db_owner:Nt5cqTxC8Iiw@ep-twilight-boat-a1n3chsb-pooler.ap-southeast-1.aws.neon.tech/learn-db?sslmode=require"
+JWT_SECRET="JtCCtSW4sl1nQ6FuEENKmPZ+BKpu8aCHYP9zKIQXTBfK/pOrLQLLUeSwdRzverQ80JX7mU64BotZPBxJRKC0XrXPJQ93BlAZuutPN4D8ZTICLM6VHyk3KC8Pitr1jDuFm5abeXhu7QXmGhl4eUdk/pCX5zL39bumVIrcGdxI4/AhrXZFCjTFSiVqmjqvAwX8Y8j4Lb1omW1ECb+fGzhwjTWpF0ojkC3+D/Em8w6q92GHFzYyrxapQGFKnf88Bf17v8WjcegnSFPNWUmm6frAuKp/VcHYwPjyWkyx9snDcjHaCOekSSFW0RzokYdaE1VsM5Yminhhu6B0h81XVfijkg=="
+```
