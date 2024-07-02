@@ -10,7 +10,8 @@
     "fix-lint": "eslint --fix \"src/**/*.{ts,tsx}\"",
     "check-format": "prettier \"src/**/*.{ts,tsx}\" --check",
     "fix-format": "prettier \"src/**/*.{ts,tsx}\" --write",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@chakra-ui/react": "^2.8.2",
