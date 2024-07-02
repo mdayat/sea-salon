@@ -30,7 +30,7 @@ To check if the code complies with best practices:
 4. Prisma with Postgresql: i don't care about query performance, so yeah, i use prisma. But i love postgresql.
 5. Neon DB (postgresql): supabase's friend.
 6. Zod: never trust user input, always validate and sanitize the data that you received.
-7. Argon: because it's recommended by [OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html).
+7. Bcrypt: for password hashing, i'm not using argon2 due to some problems on production; yep, skill issue.
 8. Jose: i need to work with cryptography in [edge runtime](https://vercel.com/docs/functions/runtimes/edge-runtime).
 9. Prettier: mandatory.
 10. ESLint: mandatory.
