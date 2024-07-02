@@ -64,7 +64,7 @@ export const RegistrationForm = memo(function RegistrationForm() {
           if (error.response.status === 400) {
             toast({
               title: "Registration Failed",
-              description: error.message,
+              description: error.response.data.message,
               status: "error",
               duration: null,
               isClosable: true,

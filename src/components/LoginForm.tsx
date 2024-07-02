@@ -73,7 +73,7 @@ export const LoginForm = memo(function LoginForm() {
           if (error.response.status === 400) {
             toast({
               title: "Login Failed",
-              description: error.message,
+              description: error.response.data.message,
               status: "error",
               duration: null,
               isClosable: true,
