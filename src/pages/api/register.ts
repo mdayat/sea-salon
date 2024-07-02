@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import argon2 from "argon2";
+import bcrypt from "bcrypt";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 import { prisma } from "../../libs/prisma";
@@ -26,7 +26,8 @@ export default function handler(
         return;
       }
 
-      hashPassword(result.data.password)
+      bcrypt
+        .hash(result.data.password, 10)
         .then((hashedPassword) => {
           insertUser(result.data, hashedPassword)
             .then(() => {
@@ -42,7 +43,7 @@ export default function handler(
 
                 res.status(500).json({
                   status: "failed",
-                  message: "Failed when inserting a new user",
+                  message: "Failed when insert new user",
                 });
                 return;
               }
@@ -69,31 +70,12 @@ export default function handler(
 
           res.status(500).json({
             status: "failed",
-            message: "Failed when hashing a password",
+            message: "Failed when hash a password",
           });
         });
     } else {
       handleInvalidMethod(res, ["POST"]);
     }
-  });
-  return promise;
-}
-
-function hashPassword(password: string): Promise<string> {
-  const promise = new Promise<string>((resolve, reject) => {
-    argon2
-      .hash(password, {
-        type: argon2.argon2id,
-        memoryCost: 19456,
-        timeCost: 2,
-        parallelism: 1,
-      })
-      .then((hashedPassword) => {
-        resolve(hashedPassword);
-      })
-      .catch((error) => {
-        reject(error);
-      });
   });
   return promise;
 }

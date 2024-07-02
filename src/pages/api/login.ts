@@ -1,4 +1,4 @@
-import argon2 from "argon2";
+import bcrypt from "bcrypt";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 import { prisma } from "../../libs/prisma";
@@ -36,8 +36,8 @@ export default function handler(
             return;
           }
 
-          argon2
-            .verify(user.password, result.data.password)
+          bcrypt
+            .compare(result.data.password, user.password)
             .then((isValidPassword) => {
               if (isValidPassword === false) {
                 res.status(400).json({
@@ -68,7 +68,7 @@ export default function handler(
 
                   res.status(500).json({
                     status: "failed",
-                    message: "Failed when verifying a password",
+                    message: "Failed when create an access token",
                   });
                 });
             })
@@ -78,7 +78,7 @@ export default function handler(
 
               res.status(500).json({
                 status: "failed",
-                message: "Failed when verifying a password",
+                message: "Failed when verify a password",
               });
             });
         })
